@@ -4,6 +4,7 @@ import type Scene from "./Scene";
 
 abstract class Component {
   public gameObject: GameObject | null = null;
+  public setup?(): void;
   public update?(deltaTime: number): void;
   public render?(g: CanvasRenderingContext2D): void;
 

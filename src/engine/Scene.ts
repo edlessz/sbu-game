@@ -8,6 +8,9 @@ class Scene {
 
   public activeCamera: Camera | null = null;
 
+  public setup(): void {
+    for (const obj of this.gameObjects) obj.setup();
+  }
   public update(deltaTime: number): void {
     for (const obj of this.gameObjects) obj.update(deltaTime);
   }
@@ -17,9 +20,10 @@ class Scene {
     );
     for (const obj of sortedGameObjects) obj.render(g);
   }
-  public addGameObject(gameObject: GameObject): void {
-    this.gameObjects.push(gameObject);
-    gameObject.scene = this;
+
+  public addGameObject(...gameObjects: GameObject[]): void {
+    this.gameObjects.push(...gameObjects);
+    for (const gameObject of gameObjects) gameObject.scene = this;
   }
   public removeGameObject(gameObject: GameObject): void {
     this.gameObjects = this.gameObjects.filter((obj) => obj !== gameObject);

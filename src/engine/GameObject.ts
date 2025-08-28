@@ -19,6 +19,7 @@ class GameObject {
     this.components.push(component);
     return component;
   }
+
   public getComponent<T extends Component>(
     ComponentType: new () => T
   ): T | null {
@@ -27,6 +28,9 @@ class GameObject {
     );
   }
 
+  public setup(): void {
+    for (const component of this.components) component.setup?.();
+  }
   public update(deltaTime: number): void {
     for (const component of this.components) component.update?.(deltaTime);
   }

@@ -1,28 +1,88 @@
 import Camera from "./engine/components/Camera";
-import Test from "./engine/components/Test";
+import TileMapCollider from "./engine/components/TileMapCollider";
 import Game from "./engine/Game";
 import GameObject from "./engine/GameObject";
 import Scene from "./engine/Scene";
+import ColorBox from "./scripts/ColorBox";
+import FollowMouse from "./scripts/FollowMouse";
 import "./style.css";
 
 const viewport = document.querySelector<HTMLCanvasElement>("#viewport");
 
 const game = new Game();
-
 const scene = new Scene();
 
 const camera = new GameObject();
 const cameraComponent = camera.addComponent(Camera);
 scene.activeCamera = cameraComponent;
-
-const testBox = new GameObject();
-testBox.addComponent(Test);
-
 scene.addGameObject(camera);
-scene.addGameObject(testBox);
+
+const red = new GameObject();
+red.addComponent(ColorBox);
+scene.addGameObject(red);
+
+const tileMap = new GameObject();
+const tileMapCollider = tileMap.addComponent(TileMapCollider);
+tileMapCollider.debugRender = true;
+tileMapCollider.loadData(
+  new Map([
+    [[0, 2], true],
+    [[1, 2], true],
+    [[2, 2], true],
+
+    [[0, 4], true],
+    [[0, 5], true],
+    [[0, 6], true],
+    [[1, 6], true],
+    [[2, 6], true],
+    [[3, 6], true],
+    [[4, 6], true],
+    [[5, 6], true],
+
+    [[4, 4], true],
+    [[4, 5], true],
+    [[4, 6], true],
+    [[4, 7], true],
+    [[4, 8], true],
+
+    [[1, 8], true],
+    [[2, 8], true],
+    [[3, 8], true],
+    [[4, 8], true],
+    [[5, 8], true],
+    [[6, 8], true],
+
+    [[6, 1], true],
+    [[6, 2], true],
+    [[6, 3], true],
+    [[6, 4], true],
+
+    [[1, 0], true],
+    [[1, 1], true],
+    [[1, 3], true],
+    [[1, 4], true],
+  ])
+);
+scene.addGameObject(tileMap);
+
+const mouseBox = new GameObject();
+mouseBox.scale.x = 3.5;
+mouseBox.scale.y = 3.5;
+mouseBox.position.x = -5;
+const mouseBoxColorBox = mouseBox.addComponent(ColorBox);
+mouseBox.addComponent(FollowMouse);
+scene.addGameObject(mouseBox);
+
 game.setScene(scene);
 game.setViewport(viewport);
-
 game.start();
 
-console.log(game);
+window.setInterval(() => {
+  const colliding = tileMapCollider.AABB({
+    x: mouseBox.position.x - mouseBox.scale.x / 2,
+    y: mouseBox.position.y - mouseBox.scale.y / 2,
+    width: mouseBox.scale.x,
+    height: mouseBox.scale.y,
+  });
+  mouseBoxColorBox.color = colliding ? "#00f" : "#0f0";
+}, 1000 / 60);

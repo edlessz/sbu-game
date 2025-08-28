@@ -1,9 +1,14 @@
 import type Camera from "./components/Camera";
+import Mouse from "./Input/Mouse";
 import type Scene from "./Scene";
 
 class Game {
   private viewport: HTMLCanvasElement | null = null;
   private context: CanvasRenderingContext2D | null = null;
+
+  public readonly Input = {
+    Mouse: new Mouse(),
+  } as const;
 
   public resizeViewport(): void {
     if (!this.viewport || !this.context) return;
@@ -22,8 +27,10 @@ class Game {
     this.viewport.height = height * dpr;
   }
   public setViewport(viewport: HTMLCanvasElement | null) {
+    this.Input.Mouse.destroy();
     this.viewport = viewport;
     this.context = this.viewport?.getContext("2d") || null;
+    if (this.viewport) this.Input.Mouse.initialize(this.viewport);
   }
   public getViewport(): HTMLCanvasElement | null {
     return this.viewport;
@@ -45,6 +52,8 @@ class Game {
 
   private lastTime: number = performance.now();
   public start(): void {
+    this.scene?.setup();
+
     this.lastTime = performance.now();
     requestAnimationFrame(this.loop.bind(this));
   }
@@ -62,6 +71,7 @@ class Game {
     this.scene.update(deltaTime);
 
     const ctx = this.context;
+    ctx.resetTransform();
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     if (this.activeCamera) {
       ctx.save();
