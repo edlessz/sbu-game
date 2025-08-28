@@ -27,54 +27,77 @@ class TileMapCollider extends Component {
     );
     this.generateRectangles();
   }
+
   public generateRectangles(): void {
     const rectangles: Rectangle[] = [];
-    const visited: Record<string, boolean> = {};
+    const spansByRow: Map<number, { x: number; width: number }[]> = new Map();
 
-    const isSolid = (x: number, y: number): boolean =>
-      this.solids[this.encodeAddress(x, y)] ?? false;
-    const markVisited = (x: number, y: number): void => {
-      visited[this.encodeAddress(x, y)] = true;
-    };
-    const isVisited = (x: number, y: number): boolean =>
-      visited[this.encodeAddress(x, y)] ?? false;
+    // Pass 1: find horizontal spans per row
+    const allAddresses = Object.keys(this.solids).map((addr) =>
+      this.decodeAddress(addr)
+    );
+    const ys = [...new Set(allAddresses.map((p) => p.y))].sort((a, b) => a - b);
 
-    Object.keys(this.solids).forEach((address) => {
-      const { x: startX, y: startY } = this.decodeAddress(address);
-      if (!isSolid(startX, startY) || isVisited(startX, startY)) return;
+    for (const y of ys) {
+      const xs = allAddresses
+        .filter((p) => p.y === y)
+        .map((p) => p.x)
+        .sort((a, b) => a - b);
 
-      let width = 1;
-      let height = 1;
+      const spans: { x: number; width: number }[] = [];
+      let spanStart: number | null = null;
+      let prevX: number | null = null;
 
-      // Expand width
-      while (
-        isSolid(startX + width, startY) &&
-        !isVisited(startX + width, startY)
-      ) {
-        width++;
-      }
-
-      // Expand height
-      let canExpandHeight = true;
-      while (canExpandHeight) {
-        for (let x = 0; x < width; x++) {
-          if (
-            !isSolid(startX + x, startY + height) ||
-            isVisited(startX + x, startY + height)
-          ) {
-            canExpandHeight = false;
-            break;
-          }
+      for (const x of xs) {
+        if (spanStart === null) {
+          spanStart = x;
+          prevX = x;
+          continue;
         }
-        if (canExpandHeight) height++;
+
+        if (prevX !== null && x === prevX + 1) {
+          // continue span
+          prevX = x;
+        } else {
+          // close span
+          spans.push({ x: spanStart, width: prevX! - spanStart + 1 });
+          spanStart = x;
+          prevX = x;
+        }
       }
+      if (spanStart !== null && prevX !== null)
+        spans.push({ x: spanStart, width: prevX - spanStart + 1 });
 
-      // Mark all tiles in the rectangle as visited
-      for (let x = 0; x < width; x++)
-        for (let y = 0; y < height; y++) markVisited(startX + x, startY + y);
+      spansByRow.set(y, spans);
+    }
 
-      rectangles.push({ x: startX, y: startY, width, height });
-    });
+    // Pass 2: merge vertically
+    const visited = new Set<string>();
+    for (const [y, spans] of spansByRow.entries()) {
+      for (const span of spans) {
+        const key = `${span.x},${y},${span.width}`;
+        if (visited.has(key)) continue;
+
+        let height = 1;
+        let nextY = y + 1;
+
+        while (true) {
+          const nextSpans = spansByRow.get(nextY);
+          if (!nextSpans) break;
+
+          const match = nextSpans.find(
+            (s) => s.x === span.x && s.width === span.width
+          );
+          if (!match) break;
+
+          visited.add(`${match.x},${nextY},${match.width}`);
+          height++;
+          nextY++;
+        }
+
+        rectangles.push({ x: span.x, y, width: span.width, height });
+      }
+    }
 
     this.solidRectangles = rectangles;
   }
