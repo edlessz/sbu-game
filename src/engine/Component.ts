@@ -8,6 +8,8 @@ abstract class Component {
   public update?(deltaTime: number): void;
   public render?(g: CanvasRenderingContext2D): void;
 
+  public active: boolean = true;
+
   get scene(): Scene | null {
     return this.gameObject?.scene ?? null;
   }

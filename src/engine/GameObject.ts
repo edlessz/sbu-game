@@ -7,6 +7,8 @@ class GameObject {
   public position: Vector3 = { x: 0, y: 0, z: 0 };
   public scale: Vector2 = { x: 1, y: 1 };
 
+  public active: boolean = true;
+
   public scene: Scene | null = null;
   get game(): Game | null {
     return this.scene?.game ?? null;
@@ -32,10 +34,12 @@ class GameObject {
     for (const component of this.components) component.setup?.();
   }
   public update(deltaTime: number): void {
-    for (const component of this.components) component.update?.(deltaTime);
+    for (const component of this.components)
+      component.active && component.update?.(deltaTime);
   }
   public render(g: CanvasRenderingContext2D): void {
-    for (const component of this.components) component.render?.(g);
+    for (const component of this.components)
+      component.active && component.render?.(g);
   }
 }
 

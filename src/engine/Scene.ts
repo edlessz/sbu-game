@@ -12,13 +12,13 @@ class Scene {
     for (const obj of this.gameObjects) obj.setup();
   }
   public update(deltaTime: number): void {
-    for (const obj of this.gameObjects) obj.update(deltaTime);
+    for (const obj of this.gameObjects) obj.active && obj.update(deltaTime);
   }
   public render(g: CanvasRenderingContext2D): void {
     const sortedGameObjects = this.gameObjects.sort(
       (a, b) => b.position.z - a.position.z
     );
-    for (const obj of sortedGameObjects) obj.render(g);
+    for (const obj of sortedGameObjects) obj.active && obj.render(g);
   }
 
   public addGameObject(...gameObjects: GameObject[]): void {
