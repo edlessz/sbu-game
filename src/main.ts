@@ -73,6 +73,7 @@ mouseBoxCollider.renderDebug = true;
 mouseBoxCollider.position.x = 1;
 mouseBoxCollider.width = 2.5;
 mouseBoxCollider.height = 0.5;
+mouseBox.position.z = -2;
 mouseBox.addComponent(FollowMouse).tileMapCollider = tileMapCollider;
 scene.addGameObject(mouseBox);
 

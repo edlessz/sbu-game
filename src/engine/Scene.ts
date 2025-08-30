@@ -16,7 +16,7 @@ class Scene {
   }
   public render(g: CanvasRenderingContext2D): void {
     const sortedGameObjects = this.gameObjects.sort(
-      (a, b) => b.position.z - a.position.z
+      (a, b) => a.position.z - b.position.z
     );
     for (const obj of sortedGameObjects) obj.active && obj.render(g);
   }
