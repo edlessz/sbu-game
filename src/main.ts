@@ -24,7 +24,7 @@ scene.addGameObject(red);
 
 const tileMap = new GameObject();
 const tileMapCollider = tileMap.addComponent(TileMapCollider);
-tileMapCollider.debugRender = true;
+tileMapCollider.renderDebug = true;
 tileMapCollider.loadData(
   new Map([
     [[0, 2], true],
@@ -68,7 +68,11 @@ scene.addGameObject(tileMap);
 
 const mouseBox = new GameObject();
 mouseBox.addComponent(ColorBox);
-mouseBox.addComponent(BoxCollider);
+const mouseBoxCollider = mouseBox.addComponent(BoxCollider);
+mouseBoxCollider.renderDebug = true;
+mouseBoxCollider.position.x = 1;
+mouseBoxCollider.width = 2.5;
+mouseBoxCollider.height = 0.5;
 mouseBox.addComponent(FollowMouse).tileMapCollider = tileMapCollider;
 scene.addGameObject(mouseBox);
 

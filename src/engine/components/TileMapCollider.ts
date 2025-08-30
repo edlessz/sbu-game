@@ -119,9 +119,9 @@ class TileMapCollider extends Component implements Collider {
   }
 
   // Debug rendering
-  public debugRender = false;
+  public renderDebug = false;
   public render(g: CanvasRenderingContext2D): void {
-    if (!this.debugRender) return;
+    if (!this.renderDebug) return;
 
     // Draw individual tiles
     g.strokeStyle = "#0f0";

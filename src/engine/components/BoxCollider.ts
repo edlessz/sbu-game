@@ -7,7 +7,7 @@ class BoxCollider extends Component implements Collider {
   public width: number = 1;
   public height: number = 1;
 
-  public debug = false;
+  public renderDebug = false;
 
   public getColliders(): Rectangle[] {
     if (!this.gameObject) return [];
@@ -26,7 +26,7 @@ class BoxCollider extends Component implements Collider {
     return other.getColliders().some((r) => AABB(r, rectangle));
   }
   public render(g: CanvasRenderingContext2D): void {
-    if (!this.debug || !this.gameObject) return;
+    if (!this.renderDebug || !this.gameObject) return;
 
     g.save();
     g.strokeStyle = "green";
