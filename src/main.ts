@@ -1,3 +1,4 @@
+import BoxCollider from "./engine/components/BoxCollider";
 import Camera from "./engine/components/Camera";
 import TileMapCollider from "./engine/components/TileMapCollider";
 import Game from "./engine/Game";
@@ -66,23 +67,11 @@ tileMapCollider.loadData(
 scene.addGameObject(tileMap);
 
 const mouseBox = new GameObject();
-mouseBox.scale.x = 3.5;
-mouseBox.scale.y = 3.5;
-mouseBox.position.x = -5;
-const mouseBoxColorBox = mouseBox.addComponent(ColorBox);
-mouseBox.addComponent(FollowMouse);
+mouseBox.addComponent(ColorBox);
+mouseBox.addComponent(BoxCollider);
+mouseBox.addComponent(FollowMouse).tileMapCollider = tileMapCollider;
 scene.addGameObject(mouseBox);
 
 game.setScene(scene);
 game.setViewport(viewport);
 game.start();
-
-window.setInterval(() => {
-  const colliding = tileMapCollider.AABB({
-    x: mouseBox.position.x - mouseBox.scale.x / 2,
-    y: mouseBox.position.y - mouseBox.scale.y / 2,
-    width: mouseBox.scale.x,
-    height: mouseBox.scale.y,
-  });
-  mouseBoxColorBox.color = colliding ? "#00f" : "#0f0";
-}, 1000 / 60);

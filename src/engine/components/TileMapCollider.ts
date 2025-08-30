@@ -1,14 +1,7 @@
 import Component from "../Component";
-import type { Vector2 } from "../types";
+import type { Collider, Rectangle, Vector2 } from "../types";
 
-interface Rectangle {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-class TileMapCollider extends Component {
+class TileMapCollider extends Component implements Collider {
   private solids: Record<string, boolean> = {};
   private solidRectangles: Rectangle[] = [];
 
@@ -28,6 +21,7 @@ class TileMapCollider extends Component {
     this.generateRectangles();
   }
 
+  // Collisions
   public generateRectangles(): void {
     const rectangles: Rectangle[] = [];
     const spansByRow: Map<number, { x: number; width: number }[]> = new Map();
@@ -101,7 +95,30 @@ class TileMapCollider extends Component {
 
     this.solidRectangles = rectangles;
   }
+  public getColliders(): Rectangle[] {
+    return this.solidRectangles;
+  }
+  public intersects(other: Collider): boolean {
+    const AABB = (o: Rectangle): boolean => {
+      for (const rect of this.solidRectangles) {
+        const gameObjectPosition = this.gameObject?.position ?? { x: 0, y: 0 };
+        const rectX = rect.x + gameObjectPosition.x;
+        const rectY = rect.y + gameObjectPosition.y;
 
+        if (
+          o.x < rectX + o.width &&
+          o.x + o.width > rectX &&
+          o.y < rectY + o.height &&
+          o.y + o.height > rectY
+        )
+          return true; // Collision detected
+      }
+      return false; // No collision
+    };
+    return other.getColliders().some((rect) => AABB(rect));
+  }
+
+  // Debug rendering
   public debugRender = false;
   public render(g: CanvasRenderingContext2D): void {
     if (!this.debugRender) return;
@@ -128,23 +145,6 @@ class TileMapCollider extends Component {
       const y = rect.y + gameObjectPosition.y;
       g.strokeRect(x, y, rect.width, rect.height);
     }
-  }
-
-  public AABB(other: Rectangle): boolean {
-    for (const rect of this.solidRectangles) {
-      const gameObjectPosition = this.gameObject?.position ?? { x: 0, y: 0 };
-      const rectX = rect.x + gameObjectPosition.x;
-      const rectY = rect.y + gameObjectPosition.y;
-
-      if (
-        other.x < rectX + rect.width &&
-        other.x + other.width > rectX &&
-        other.y < rectY + rect.height &&
-        other.y + other.height > rectY
-      )
-        return true; // Collision detected
-    }
-    return false; // No collision
   }
 }
 

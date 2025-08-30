@@ -8,3 +8,15 @@ export interface Vector3 {
   y: number;
   z: number;
 }
+
+export interface Rectangle {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface Collider {
+  getColliders(): Rectangle[];
+  intersects(other: Collider): boolean;
+}
